@@ -7,7 +7,7 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format("../addons/%s/settings.json", string.lower(addonNameLower))
+g.settingsFileLoc = string.format("../addons/%s/settings.json", string.lower(addonName))
 g.padslotBoxes = {"L1R1_slot_Set1", "L1_slot_Set1", "L2_slot_Set1", "R1_slot_Set1", "R2_slot_Set1", "L1R1_slot_Set2", "L1_slot_Set2", "L2_slot_Set2", "R1_slot_Set2", "R2_slot_Set2"}
 
 local acutil = require('acutil')
