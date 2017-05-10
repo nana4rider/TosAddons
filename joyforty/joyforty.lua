@@ -13,7 +13,7 @@ g.padslotBoxes = {"L1R1_slot_Set1", "L1_slot_Set1", "L2_slot_Set1", "R1_slot_Set
 local acutil = require('acutil')
 
 if not g.loaded then
-    g.settings = {key = "JOY_BTN_11"}
+    g.settings = {enable = true, key = "JOY_BTN_11"}
 end
 
 CHAT_SYSTEM(string.format("%s.lua is loaded", addonName))
@@ -43,7 +43,13 @@ function JOYFORTY_ON_INIT(addon, frame)
         acutil.setupHook(UPDATE_JOYSTICK_INPUT_HOOK, "UPDATE_JOYSTICK_INPUT")
         acutil.setupHook(JOYSTICK_QUICKSLOT_SWAP_HOOK, "JOYSTICK_QUICKSLOT_SWAP")
         acutil.setupHook(QUICKSLOT_INIT_HOOK, "QUICKSLOT_INIT")
+        addon:RegisterMsg("GAME_START_3SEC", "JOYFORTY_INIT")
     end
+end
+
+function JOYFORTY_INIT()
+    QUICKSLOT_INIT_HOOK()
+    JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT()
 end
 
 function JOYFORTY_PROCESS_COMMAND(command)
@@ -69,8 +75,10 @@ function JOYFORTY_PROCESS_COMMAND(command)
     elseif cmd == "key" then
         if #command > 0 then
             g.settings.key = table.remove(command, 1)
+            CHAT_SYSTEM(string.format("set key %s", g.settings.key))
             JOYFORTY_SAVE_SETTINGS()
         end
+        return;
     end
     
     CHAT_SYSTEM(string.format("[%s] Invalid Command", addonName))
@@ -124,8 +132,8 @@ function UPDATE_JOYSTICK_INPUT_HOOK(frame)
     local inputR2 = joystick.IsKeyPressed("JOY_BTN_8")
     local inputL1L2 = joystick.IsKeyPressed("JOY_L1L2")
     local inputShift = joystick.IsKeyPressed(g.settings.key)
-    local set1Btn = frame:GetChildRecursively("L2R2_set1")
-    local set2Btn = frame:GetChildRecursively("L2R2_set2")
+    local set1Btn = frame:GetChildRecursively("L2R2_Set1")
+    local set2Btn = frame:GetChildRecursively("L2R2_Set2")
     
     if joystick.IsKeyPressed("JOY_UP") == 1 and inputL1L2 == 1 then
         ON_RIDING_VEHICLE(1)
@@ -169,6 +177,8 @@ function UPDATE_JOYSTICK_INPUT_HOOK(frame)
             SYSMENU_JOYSTICK_MOVE_RIGHT()
         end
         JOYFORTY_SET_PADSLOT_SKIN(frame, "R2_slot_Set" .. slot)
+    else
+        JOYFORTY_SET_PADSLOT_SKIN(frame, nil)
     end
 end
 
@@ -178,10 +188,10 @@ end
 
 function QUICKSLOT_INIT_HOOK(frame, msg, argStr, argNum)
     local qframe = ui.GetFrame('joystickquickslot')
-    local set1 = qframe:GetChild("set1")
-    local set2 = qframe:GetChild("set2")
-    local set1Btn = qframe:GetChildRecursively("L2R2_set1")
-    local set2Btn = qframe:GetChildRecursively("L2R2_set2")
+    local set1 = qframe:GetChild("Set1")
+    local set2 = qframe:GetChild("Set2")
+    local set1Btn = qframe:GetChildRecursively("L2R2_Set1")
+    local set2Btn = qframe:GetChildRecursively("L2R2_Set2")
     
     qframe:Resize(1920, 270)
     qframe:SetOffset(0, 810)
