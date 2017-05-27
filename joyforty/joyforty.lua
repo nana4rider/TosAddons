@@ -78,7 +78,7 @@ function JOYFORTY_PROCESS_COMMAND(command)
             CHAT_SYSTEM(string.format("set key %s", g.settings.key))
             JOYFORTY_SAVE_SETTINGS()
         end
-        return;
+        return 
     end
     
     CHAT_SYSTEM(string.format("[%s] Invalid Command", addonName))
@@ -119,6 +119,24 @@ function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
     
     local slot = qframe:GetChildRecursively("slot" .. slotIndex + 1)
     QUICKSLOTNEXPBAR_SLOT_USE(qframe, slot, 'None', 0)
+    
+    if ui.GetFrame('hotkeyabilityforjoy') then
+        local hkaKey = tostring(slotIndex + 1)
+        local hkaValue = _G['ADDONS']['HOTKEYABILITYFORJOY'].setting[hkaKey]
+        
+        if hkaValue then
+            if hkaValue[2] == 'Pose' then
+                local poseCls = GetClassByType('Pose', hkaValue[1])
+                if poseCls ~= nil then
+                    control.Pose(poseCls.ClassName)
+                end
+            elseif hkaValue[2] == 'Macro' then
+                EXEC_CHATMACRO(tonumber(hkaValue[1]))
+            else
+                HOTKEYABILITY_TOGGLE_ABILITIY(hkaKey, hkaValue[1])
+            end
+        end
+    end
 end
 
 function UPDATE_JOYSTICK_INPUT_HOOK(frame)
