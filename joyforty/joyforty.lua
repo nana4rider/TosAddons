@@ -91,8 +91,7 @@ function JOYFORTY_SET_PADSLOT_SKIN(frame, activebox)
     end
 end
 
-function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
-    local qframe = ui.GetFrame('joystickquickslot')
+function JOYFORTY_GET_STANDARD_SLOT_INDEX(slotIndex)
     local inputL1 = joystick.IsKeyPressed("JOY_BTN_5")
     local inputR1 = joystick.IsKeyPressed("JOY_BTN_6")
     local inputShift
@@ -100,13 +99,6 @@ function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
         inputShift = joystick.IsKeyPressed(g.settings.key)
     else
         inputShift = keyboard.IsKeyPressed(g.settings.key)
-    end
-    
-    -- (。-ω-)
-    local restframe = ui.GetFrame('joystickrestquickslot')
-    if restframe:IsVisible() == 1 then
-        REST_JOYSTICK_SLOT_USE(restframe, slotIndex)
-        return 
     end
     
     -- L1R1
@@ -117,30 +109,48 @@ function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
             slotIndex = slotIndex - 4
         end
     end
-    
+    -- Set1/2
     if inputShift == 1 then
         slotIndex = slotIndex + 20
     end
     
+    return slotIndex
+end
+
+function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
+    local qframe = ui.GetFrame('joystickquickslot')
+    
+    -- (。-ω-)
+    local restframe = ui.GetFrame('joystickrestquickslot')
+    if restframe:IsVisible() == 1 then
+        REST_JOYSTICK_SLOT_USE(restframe, slotIndex)
+        return 
+    end
+    
+    slotIndex = JOYFORTY_GET_STANDARD_SLOT_INDEX(slotIndex)
+    
     local slot = qframe:GetChildRecursively("slot" .. slotIndex + 1)
     QUICKSLOTNEXPBAR_SLOT_USE(qframe, slot, 'None', 0)
+end
+
+-- @Override hotkeyabilityforjoy
+function JOYSTICK_QUICKSLOT_EXECUTE_EVENT(addonFrame, eventMsg)
+    local slotIndex = JOYFORTY_GET_STANDARD_SLOT_INDEX(acutil.getEventArgs(eventMsg))
+    local key = tostring(slotIndex + 1)
+    local value = _G['ADDONS']['HOTKEYABILITYFORJOY'].setting[key]
+    if not value then
+        return 
+    end
     
-    if ui.GetFrame('hotkeyabilityforjoy') then
-        local hkaKey = tostring(slotIndex + 1)
-        local hkaValue = _G['ADDONS']['HOTKEYABILITYFORJOY'].setting[hkaKey]
-        
-        if hkaValue then
-            if hkaValue[2] == 'Pose' then
-                local poseCls = GetClassByType('Pose', hkaValue[1])
-                if poseCls ~= nil then
-                    control.Pose(poseCls.ClassName)
-                end
-            elseif hkaValue[2] == 'Macro' then
-                EXEC_CHATMACRO(tonumber(hkaValue[1]))
-            else
-                HOTKEYABILITY_TOGGLE_ABILITIY(hkaKey, hkaValue[1])
-            end
+    if value[2] == 'Pose' then
+        local poseCls = GetClassByType('Pose', value[1])
+        if poseCls ~= nil then
+            control.Pose(poseCls.ClassName)
         end
+    elseif value[2] == 'Macro' then
+        EXEC_CHATMACRO(tonumber(value[1]))
+    elseif value[2] == 'Ability' then
+        HOTKEYABILITY_TOGGLE_ABILITIY(key, value[1])
     end
 end
 
