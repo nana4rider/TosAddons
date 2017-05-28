@@ -95,7 +95,12 @@ function JOYSTICK_QUICKSLOT_EXECUTE_HOOK(slotIndex)
     local qframe = ui.GetFrame('joystickquickslot')
     local inputL1 = joystick.IsKeyPressed("JOY_BTN_5")
     local inputR1 = joystick.IsKeyPressed("JOY_BTN_6")
-    local inputShift = joystick.IsKeyPressed(g.settings.key)
+    local inputShift
+    if string.match(g.settings.key, "^JOY_") then
+        inputShift = joystick.IsKeyPressed(g.settings.key)
+    else
+        inputShift = keyboard.IsKeyPressed(g.settings.key)
+    end
     
     -- (。-ω-)
     local restframe = ui.GetFrame('joystickrestquickslot')
@@ -149,7 +154,12 @@ function UPDATE_JOYSTICK_INPUT_HOOK(frame)
     local inputR1 = joystick.IsKeyPressed("JOY_BTN_6")
     local inputR2 = joystick.IsKeyPressed("JOY_BTN_8")
     local inputL1L2 = joystick.IsKeyPressed("JOY_L1L2")
-    local inputShift = joystick.IsKeyPressed(g.settings.key)
+    local inputShift
+    if string.match(g.settings.key, "^JOY_") then
+        inputShift = joystick.IsKeyPressed(g.settings.key)
+    else
+        inputShift = keyboard.IsKeyPressed(g.settings.key)
+    end
     local set1Btn = frame:GetChildRecursively("L2R2_Set1")
     local set2Btn = frame:GetChildRecursively("L2R2_Set2")
     
